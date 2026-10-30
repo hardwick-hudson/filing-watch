@@ -1,4 +1,3 @@
-import "dotenv/config";
 import {closeDb, db, withTransaction} from "../lib/db";
 import {extractFiling, EXTRACTION_MODEL, PROMPT_VERSION} from "../lib/extract";
 import {isRealDate, validateExtraction} from "../lib/validate";

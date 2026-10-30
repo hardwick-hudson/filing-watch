@@ -1,4 +1,3 @@
-import "dotenv/config";
 import {closeDb, db} from "../lib/db";
 import {fetchRecent8KFilings, fetchFilingText, sleep} from "../lib/edgar";
 
