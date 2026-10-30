@@ -2,7 +2,7 @@ import {Anthropic} from "@anthropic-ai/sdk";
 import {extractionSchema, type Extraction} from "./extraction-schema";
 
 export const EXTRACTION_MODEL = "claude-haiku-5-5";
-export const PROMPT_VERSION = "v1";
+export const PROMPT_VERSION = "v3";
 
 const client = new Anthropic();
 
@@ -19,11 +19,10 @@ Excerpts:
 
 items: one entry for each Item the filing reports, such as "2.02" or "9.01". "description" is one short sentence about what this filing reports under that item.
 
-parties: companies, people and organizations that take part in the reported events. "role" is a few words, such as "registrant", "counterparty", "lender", "departing officer" or "appointed director".
-
+parties: companies, people and organizations that take part in the reported events. Do not include a person only because they signed the filing; include them only if they also take part in a reported event. Do not include exchanges or other names from the cover page. "role" is two to four words, such as "registrant", "counterparty", "lender", "departing officer" or "appointed director".
 dates: dates of the reported events, including the date of the earliest event reported. Write each date as YYYY-MM-DD. If the filing does not give the exact day, leave that date out.
 
-amounts: monetary amounts that the filing states. Write "amount" as a plain number in full units: "$1.2 billion" is 1200000000. Write "currency" as a three-letter ISO code: "$" is "USD".
+amounts: monetary amounts of the reported events, as the filing states them. Do not include amounts from the cover page, such as par values. Write "amount" as a plain number in full units: "$1.2 billion" is 1200000000. Write "currency" as a three-letter ISO code: "$" is "USD".
 
 If the filing has nothing for a category, return an empty array for it.`;
 
