@@ -13,18 +13,29 @@ CREATE TABLE filings
     form_type    TEXT        NOT NULL,
     filed_at     DATE        NOT NULL,
     source_url   TEXT        NOT NULL,
-    raw_text     TEXT
+    raw_text     TEXT,
+    edgar_items  TEXT[]
 );
 
 CREATE TABLE extractions
 (
     id                SERIAL PRIMARY KEY,
     filing_id         INTEGER     NOT NULL REFERENCES filings (id),
-    event_category    TEXT,
     model             TEXT        NOT NULL,
     prompt_version    TEXT        NOT NULL,
     validation_status TEXT        NOT NULL,
-    created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    error_message     TEXT
+);
+
+CREATE TABLE extraction_items
+(
+    id            SERIAL PRIMARY KEY,
+    extraction_id INTEGER NOT NULL REFERENCES extractions (id) ON DELETE CASCADE,
+    item_number   TEXT    NOT NULL,
+    description   TEXT,
+    excerpt       TEXT,
+    UNIQUE (extraction_id, item_number)
 );
 
 CREATE TABLE extraction_parties
@@ -53,12 +64,4 @@ CREATE TABLE extraction_amounts
     currency      TEXT    NOT NULL DEFAULT 'USD',
     description   TEXT,
     excerpt       TEXT
-);
-
-CREATE TABLE extraction_excerpts
-(
-    id            SERIAL PRIMARY KEY,
-    extraction_id INTEGER NOT NULL REFERENCES extractions (id) ON DELETE CASCADE,
-    field         TEXT    NOT NULL,
-    text          TEXT    NOT NULL
 );
