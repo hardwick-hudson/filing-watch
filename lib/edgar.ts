@@ -9,6 +9,7 @@ type EdgarSubmission = {
             filingDate: string[];
             form: string[];
             primaryDocument: string[];
+            items: string[];
         };
     };
 };
@@ -20,6 +21,7 @@ export type EdgarFiling = {
     formType: string;
     filedAt: string;
     sourceUrl: string;
+    items: string[];
 };
 
 function requireUserAgent(): string {
@@ -92,6 +94,7 @@ export async function fetchRecent8KFilings(cik: string): Promise<EdgarFiling[]> 
                 recent.accessionNumber[index],
                 primaryDocument,
             ),
+            items: (recent.items[index] ?? "").split(",").map((item) => item.trim()).filter(Boolean), // edgar sends "2.02,9.01", empty string when none
         });
     }
 

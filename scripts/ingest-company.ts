@@ -51,9 +51,17 @@ async function main() {
         );
 
         inserted += result.rowCount ?? 0;
-
+        await db.query(
+            `UPDATE filings
+             SET edgar_items = $1
+             WHERE accession_no = $2
+               AND edgar_items IS NULL`,
+            [filing.items, filing.accessionNo],
+        );
         const {rows} = await db.query(
-            `SELECT raw_text IS NULL AS needs_text FROM filings WHERE accession_no = $1`,
+            `SELECT raw_text IS NULL AS needs_text
+             FROM filings
+             WHERE accession_no = $1`,
             [filing.accessionNo],
         );
         if (rows[0]?.needs_text) {
