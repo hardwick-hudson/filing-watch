@@ -74,6 +74,13 @@ export async function fetchRecent8KFilings(cik: string): Promise<EdgarFiling[]> 
             continue;
         }
 
+        const primaryDocument = recent.primaryDocument[index];
+
+        if (!primaryDocument) {
+            console.warn(`  skipping ${recent.accessionNumber[index]}: no primary document`);
+            continue;
+        }
+
         filings.push({
             accessionNo: recent.accessionNumber[index],
             cik: submissions.cik,
@@ -83,7 +90,7 @@ export async function fetchRecent8KFilings(cik: string): Promise<EdgarFiling[]> 
             sourceUrl: filingDocumentUrl(
                 submissions.cik,
                 recent.accessionNumber[index],
-                recent.primaryDocument[index],
+                primaryDocument,
             ),
         });
     }
@@ -108,7 +115,12 @@ export async function fetchFilingText(sourceUrl: string): Promise<string> {
     $('[style*="display:none"], [style*="display: none"]').remove();
     $("br").replaceWith(" ");
     $("p, div, td, th, tr, li, h1, h2, h3, h4, h5, h6").append(" ");
-    return $("body").text().replace(/\s+/g, " ").trim();
+    const text = $("body").text().replace(/\s+/g, " ").trim();
+    if (!text) {
+        throw new Error(`No text found at ${sourceUrl}`);
+    }
+    
+    return text;
 }
 
 export function sleep(ms: number): Promise<void> {
