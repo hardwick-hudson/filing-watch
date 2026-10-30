@@ -1,6 +1,6 @@
 import "dotenv/config";
 import {closeDb, db} from "../lib/db";
-import {fetchRecent8KFilings} from "../lib/edgar";
+import {fetchRecent8KFilings, fetchFilingText, sleep} from "../lib/edgar";
 
 async function main() {
     const cik = process.argv[2];
@@ -51,10 +51,31 @@ async function main() {
         );
 
         inserted += result.rowCount ?? 0;
-    }
 
+        const {rows} = await db.query(
+            `SELECT raw_text IS NULL AS needs_text FROM filings WHERE accession_no = $1`,
+            [filing.accessionNo],
+        );
+        if (rows[0]?.needs_text) {
+            try {
+                const text = await fetchFilingText(filing.sourceUrl);
+                await db.query(
+                    `UPDATE filings
+                     SET raw_text = $1
+                     WHERE accession_no = $2
+                       and raw_text IS NULL`, // only fetch missing text, just fills nulls tho
+                    [text, filing.accessionNo],
+                );
+            } catch (error) {
+                console.error(`  text fetch failed for ${filing.accessionNo}:`, (error as Error).message);
+            }
+
+            await sleep(150);
+        }
+    }
     console.log(`Fetched ${filings.length} recent 8-K filings.`);
     console.log(`Inserted ${inserted} new filings.`);
+
 }
 
 main()

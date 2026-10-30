@@ -1,3 +1,5 @@
+import * as cheerio from "cheerio";
+
 type EdgarSubmission = {
     cik: string;
     name: string;
@@ -87,4 +89,28 @@ export async function fetchRecent8KFilings(cik: string): Promise<EdgarFiling[]> 
     }
 
     return filings;
+}
+
+export async function fetchFilingText(sourceUrl: string): Promise<string> {
+
+    const res = await fetch(sourceUrl, {
+        headers: {"User-Agent": requireUserAgent()},
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch ${sourceUrl}: ${res.status} ${res.statusText}`);
+    }
+
+    const html = await res.text();
+    const $ = cheerio.load(html);
+    $("script, style").remove();
+    $("ix\\:header").remove();
+    $('[style*="display:none"], [style*="display: none"]').remove();
+    $("br").replaceWith(" ");
+    $("p, div, td, th, tr, li, h1, h2, h3, h4, h5, h6").append(" ");
+    return $("body").text().replace(/\s+/g, " ").trim();
+}
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
