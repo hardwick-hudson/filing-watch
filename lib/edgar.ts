@@ -119,7 +119,7 @@ export async function fetchFilingText(sourceUrl: string): Promise<string> {
     if (!text) {
         throw new Error(`No text found at ${sourceUrl}`);
     }
-    
+
     return text;
 }
 
