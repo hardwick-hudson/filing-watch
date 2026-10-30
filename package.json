@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ingest": "DOTENV_CONFIG_PATH=.env.local tsx scripts/ingest-company.ts"
+    "ingest": "DOTENV_CONFIG_PATH=.env.local tsx scripts/ingest-company.ts",
+    "extract": "DOTENV_CONFIG_PATH=.env.local tsx scripts/extract-filings.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

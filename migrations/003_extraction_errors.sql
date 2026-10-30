@@ -1,0 +1,1 @@
+ALTER TABLE extractions ADD COLUMN error_message TEXT;

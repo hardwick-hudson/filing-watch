@@ -9,7 +9,7 @@ function normalize(text: string): string {
     return text.replace(/\s+/g, " ").trim(); // raw_text is already collapsed, this just evens out the model
 }
 
-function isRealDate(value: string): boolean {
+export function isRealDate(value: string): boolean {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
         return false;
     }
@@ -52,7 +52,12 @@ export function validateExtraction(extraction: Extraction, rawText: string): Val
     for (const [i, party] of extraction.parties.entries()) {
         checkExcerpt(`parties[${i}] ${party.name}`, party.excerpt);
 
+        //excerpt has to actually name them, not just be somewhere in filing
+        if (!normalize(party.excerpt).toLowerCase().includes(normalize(party.name).toLowerCase())){
+            problems.push(`parties[${i}]: excerpt does not contain the name "${party.name}"`);
+        }
     }
+
     for (const [i, entry] of extraction.dates.entries()) {
         checkExcerpt(`dates[${i}] ${entry.date}`, entry.excerpt);
 
