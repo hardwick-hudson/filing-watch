@@ -10,15 +10,15 @@ text so every extracted claim can be traced back to the filing.
 In progress. Working now:
 
 - Next.js app scaffolded and running locally
+- EDGAR ingestion fetches 8-K filings for a given company (CIK) and stores
+  the filing text alongside metadata
 
 Building next:
 
-- EDGAR ingestion: fetch and store 8-K filings for a given company (CIK)
-
+- LLM extraction pipeline (event category, parties, dates, dollar amounts)
 
 Not built yet:
 
-- LLM extraction pipeline
 - List and source-vs-extraction detail views
 - Deployment
 
@@ -31,7 +31,7 @@ Next.js (App Router) · TypeScript · PostgreSQL · Anthropic API
 Requires a local PostgreSQL database and an Anthropic API key.
 
 1. `npm install`
-2. Copy `.env.example` to `.env.local` and fill in `DATABASE_URL` and
+2. Copy `.env.example` to `.env.local` and fill in `SEC_USER_AGENT`, `DATABASE_URL` and
    `ANTHROPIC_API_KEY`
 3. Apply the schema: `psql filing_watch -f migrations/001_init.sql`
 4. `npm run dev`
