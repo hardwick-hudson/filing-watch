@@ -1,4 +1,4 @@
-import { Pool, PoolClient } from "pg";
+import {Pool, PoolClient} from "pg";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -27,7 +27,7 @@ export async function withTransaction<T>(
     } catch (error) {
         await client.query("ROLLBACK");
         throw error;
-    }finally{
+    } finally {
         client.release();
     }
 }
