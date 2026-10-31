@@ -22,6 +22,10 @@ export function validateExtraction(extraction: Extraction, rawText: string, edga
     const problems: string[] = [];
     const source = normalize(rawText);
 
+    // everything before the first item heading is the cover page
+    const firstItem = source.search(/Item \d\.\d{2}/i);
+    const coverEnd = firstItem === -1 ? 0 : firstItem;
+
     function checkExcerpt(label: string, excerpt: string) {
         const text = normalize(excerpt);
 
@@ -71,6 +75,13 @@ export function validateExtraction(extraction: Extraction, rawText: string, edga
         //excerpt has to actually name them, not just be somewhere in filing
         if (!normalize(party.excerpt).toLowerCase().includes(normalize(party.name).toLowerCase())) {
             problems.push(`parties[${i}]: excerpt does not contain the name "${party.name}"`);
+        }
+
+        // only flag if text shows up nowhere after cover page
+        const text = normalize(party.excerpt);
+
+        if (text !== "" && source.includes(text) && !source.includes(text, coverEnd)) {
+            problems.push(`parties[${i}]: excerpt only appears on the cover page`);
         }
     }
 
