@@ -18,7 +18,7 @@ export function isRealDate(value: string): boolean {
     return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
-export function validateExtraction(extraction: Extraction, rawText: string): ValidationResult {
+export function validateExtraction(extraction: Extraction, rawText: string, edgarItems: string[] | null): ValidationResult {
     const problems: string[] = [];
     const source = normalize(rawText);
 
@@ -49,11 +49,27 @@ export function validateExtraction(extraction: Extraction, rawText: string): Val
         seenItems.add(item.item_number);
     }
 
+    if (edgarItems && edgarItems.length > 0) {
+        const extracted = new Set<string>(extraction.items.map((item) => item.item_number));
+
+        for (const item of edgarItems) {
+            if (!extracted.has(item)) {
+                problems.push(`items: missed ${item}, EDGAR lists it`);
+            }
+        }
+
+        for (const item of extracted) {
+            if (!edgarItems.includes(item)) {
+                problems.push(`items: ${item} is not in EDGAR's list`);
+            }
+        }
+    }
+
     for (const [i, party] of extraction.parties.entries()) {
         checkExcerpt(`parties[${i}] ${party.name}`, party.excerpt);
 
         //excerpt has to actually name them, not just be somewhere in filing
-        if (!normalize(party.excerpt).toLowerCase().includes(normalize(party.name).toLowerCase())){
+        if (!normalize(party.excerpt).toLowerCase().includes(normalize(party.name).toLowerCase())) {
             problems.push(`parties[${i}]: excerpt does not contain the name "${party.name}"`);
         }
     }

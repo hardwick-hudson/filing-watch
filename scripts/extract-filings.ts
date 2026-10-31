@@ -12,27 +12,34 @@ type PendingFiling = {
     id: number;
     accession_no: string;
     raw_text: string;
+    edgar_items: string[] | null;
 };
 
 async function main() {
     const limit = Number(process.argv[2] ?? 5); // small default so one bad run can't eat the cap
-    if (!Number.isInteger(limit) || limit < 1) {
-        console.error("Usage: npm run extract -- [limit]");
+    const itemFilter = process.argv[3] ?? null; // eg 5.02, lets me test one kind of filing at a time
+    if (!Number.isInteger(limit) || limit < 1 || (itemFilter !== null && !/^\d\.\d{2}$/.test(itemFilter))) {
+        console.error("Usage: npm run extract -- [limit] [item]");
         process.exit(1);
     }
 
     const {rows: filings} = await db.query<PendingFiling>(
-        `SELECT f.id, f.accession_no, f.raw_text
+        `SELECT f.id, f.accession_no, f.raw_text, f.edgar_items
          FROM filings f
          WHERE f.raw_text IS NOT NULL
-           AND NOT EXISTS (SELECT 1 FROM extractions e WHERE e.filing_id = f.id AND e.prompt_version = $3 AND e.validation_status <> 'error')
-           AND (SELECT count(*) FROM extractions e WHERE e.filing_id = f.id AND e.prompt_version = $3 AND e.validation_status = 'error') < $2
+           AND NOT EXISTS (SELECT 1
+                           FROM extractions e
+                           WHERE e.filing_id = f.id AND e.prompt_version = $3 AND e.validation_status <> 'error')
+           AND (SELECT count(*)
+                FROM extractions e
+                WHERE e.filing_id = f.id AND e.prompt_version = $3 AND e.validation_status = 'error') < $2
+           AND ($4::text IS NULL OR $4 = ANY (f.edgar_items))
          ORDER BY f.filed_at DESC
              LIMIT $1`,
-        [limit, MAX_ATTEMPTS, PROMPT_VERSION],
+        [limit, MAX_ATTEMPTS, PROMPT_VERSION, itemFilter], // $4 null = no filter
     );
 
-    console.log(`Found ${filings.length} filings to extract.`);
+    console.log(`Found ${filings.length} filings to extract${itemFilter ? ` with item ${itemFilter}` : ""}.`);
 
     let inputTokens = 0;
     let outputTokens = 0;
@@ -40,7 +47,7 @@ async function main() {
     for (const filing of filings) {
         try {
             const result = await extractFiling(filing.raw_text);
-            const validation = validateExtraction(result.extraction, filing.raw_text);
+            const validation = validateExtraction(result.extraction, filing.raw_text, filing.edgar_items);
             const {items, parties, dates, amounts} = result.extraction;
 
             // count before write, api charged even if insert fails
