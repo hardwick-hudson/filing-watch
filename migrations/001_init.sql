@@ -65,3 +65,7 @@ CREATE TABLE extraction_amounts
     description   TEXT,
     excerpt       TEXT
 );
+
+CREATE UNIQUE INDEX one_result_per_filing_version
+    ON extractions (filing_id, prompt_version)
+    WHERE validation_status <> 'error';

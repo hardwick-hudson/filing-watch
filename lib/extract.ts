@@ -2,7 +2,7 @@ import {Anthropic} from "@anthropic-ai/sdk";
 import {extractionSchema, type Extraction} from "./extraction-schema";
 
 export const EXTRACTION_MODEL = "claude-haiku-5-5";
-export const PROMPT_VERSION = "v4";
+export const PROMPT_VERSION = "v5";
 
 const client = new Anthropic();
 
@@ -19,7 +19,7 @@ Excerpts:
 
 items: one entry for each Item the filing reports, such as "2.02" or "9.01". "description" is one short sentence about what this filing reports under that item.
 
-parties: companies, people and organizations that take part in the reported events. Always include the registrant. Do not include a person only because they signed the filing; include them only if they also take part in a reported event. Do not include exchanges or other names from the cover page. The excerpt must contain the party's name as the filing writes it. "role" is two to four words, such as "registrant", "counterparty", "lender", "departing officer" or "appointed director".
+parties: companies, people and organizations that take part in the reported events. Include outside actors that the filing names as part of the event, such as an acquirer, a lender or a threat actor. Always include the registrant. Do not include a person only because they signed the filing; include them only if they also take part in a reported event. Do not include exchanges or other names from the cover page. The excerpt must contain the party's name as the filing writes it. "role" is two to four words, such as "registrant", "counterparty", "lender", "departing officer" or "appointed director".
 
 dates: dates of the reported events, including the date of the earliest event reported. For financial results, also include the end date of the reported period. Write each date as YYYY-MM-DD. If the filing does not give the exact day, leave that date out.
 
