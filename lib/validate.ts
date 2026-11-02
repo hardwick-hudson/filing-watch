@@ -83,6 +83,11 @@ export function validateExtraction(extraction: Extraction, rawText: string, edga
         if (text !== "" && source.includes(text) && !source.includes(text, coverEnd)) {
             problems.push(`parties[${i}]: excerpt only appears on the cover page`);
         }
+
+        // a quote that's just the name proves they're in the filing, not what they did
+        if (text.toLowerCase() === normalize(party.name).toLowerCase()) {
+            problems.push(`parties[${i}]: excerpt is only the name`);
+        }
     }
 
     for (const [i, entry] of extraction.dates.entries()) {

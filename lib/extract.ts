@@ -2,7 +2,7 @@ import {Anthropic} from "@anthropic-ai/sdk";
 import {extractionSchema, type Extraction} from "./extraction-schema";
 
 export const EXTRACTION_MODEL = "claude-haiku-5-5";
-export const PROMPT_VERSION = "v6";
+export const PROMPT_VERSION = "v8";
 
 const client = new Anthropic();
 
@@ -19,7 +19,7 @@ Excerpts:
 
 items: one entry for each Item the filing reports, such as "2.02" or "9.01". "description" is one short sentence about what this filing reports under that item.
 
-parties: companies, people and organizations that take part in the reported events. Include outside actors that the filing names as part of the event, such as an acquirer, a lender or a threat actor. Always include the registrant. Do not include a person only because they signed the filing; include them only if they also take part in a reported event. Do not include exchanges or other names from the cover page. The excerpt must contain the party's name as the filing writes it. "role" names the specific title or part in the event, for example "incoming chief executive officer", "outgoing general counsel" or "threat actor". Never use a generic word such as "officer", "director" or "board member" alone. If a person moves from one role to another, say both, for example "CEO to executive chair".
+parties: companies, people and organizations that take part in the reported events. Include outside actors that the filing names as part of the event, such as an acquirer, a lender or a threat actor. Always include the registrant, once. Use the name exactly as it appears in that party's excerpt. Do not include a person only because they signed the filing; include them only if they also take part in a reported event. Do not include directors only because they were re-elected at a shareholder meeting. Do not include exchanges or other names from the cover page. "role" is at most six words and names the specific title or part in the event, for example "incoming chief executive officer", "outgoing general counsel" or "threat actor". Never use a generic word such as "officer", "director" or "board member" alone. If a person moves from one role to another, say both, for example "CEO to executive chair". The excerpt must contain the party's name as the filing writes it, and it must show their part in the event, not only their name. Do not take party excerpts from the cover page.
 
 dates: dates of the reported events, including the date of the earliest event reported. For financial results, also include the end date of the reported period. Write each date as YYYY-MM-DD. If the filing does not give the exact day, leave that date out.
 
