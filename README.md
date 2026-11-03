@@ -42,6 +42,7 @@ You need Node.js 20.9+, PostgreSQL, and an Anthropic API key.
 npm run ingest -- 320193     # pull a company's recent 8-Ks by CIK (320193 is Apple)
 npm run extract -- 5         # extract the 5 newest filings not done yet (for current prompt version)
 npm run extract -- 5 5.02    # only filings that EDGAR lists with item 5.02
+npm test                     # unit tests for the validator
 ```
 
 `extract` calls the Anthropic API. It uses Haiku, which is cheap, but set a spend limit on your API key anyway. With no
